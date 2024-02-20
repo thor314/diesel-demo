@@ -152,3 +152,23 @@ pub mod get_one {
     post.ok().flatten()
   }
 }
+
+pub mod delete_post {
+  use diesel::prelude::*;
+  use diesel_async::{AsyncPgConnection, RunQueryDsl};
+
+  use crate::schema::{
+    self,
+    posts::{dsl::{id, posts}, title},
+  };
+
+  pub async fn delete_post(conn: &mut AsyncPgConnection, pattern: &str) {
+    // let num_deleted = diesel::delete(posts.filter(id.eq(post_id)))
+    let num_deleted = diesel::delete(posts.filter(title.like(pattern)))
+      .execute(conn)
+      .await
+      .expect("Error deleting post");
+
+    println!("Deleted {} posts", num_deleted);
+  }
+}
