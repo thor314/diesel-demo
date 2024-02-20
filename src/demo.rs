@@ -46,6 +46,11 @@ mod models {
 // lesson part one. These two lines are not always suggested, but fix many things:
 // use diesel::prelude::*;
 // use diesel_async::{AsyncConnection, RunQueryDsl};
+//
+// to query
+// we filter the query however we want
+// and "select" the post type to coerce into
+// and gogo
 pub mod show_posts {
   use diesel::prelude::*;
   use diesel_async::{AsyncConnection, AsyncPgConnection, RunQueryDsl};
@@ -73,6 +78,11 @@ pub mod show_posts {
   }
 }
 
+// to insert an entry, it has to be Insertable
+// we chose the table to insert into
+// we provide the value to insert
+// specify the kind of thing it is
+// and gogogo
 pub mod create_posts {
   use diesel::prelude::*;
   use diesel_async::{AsyncConnection, AsyncPgConnection, RunQueryDsl};
@@ -92,6 +102,10 @@ pub mod create_posts {
   }
 }
 
+// to update an entry
+// first we gotta find it
+// then we gotta set it
+// finally we `returning` it before we `get_result` it from the connection
 pub mod publish_post {
   use diesel::prelude::*;
   use diesel_async::{AsyncConnection, AsyncPgConnection, RunQueryDsl};
@@ -111,5 +125,30 @@ pub mod publish_post {
       .unwrap();
 
     println!("Published post {}", post.title);
+  }
+}
+
+// sometimes queries will only come back with None, this is okay
+pub mod get_one {
+  use diesel::prelude::*;
+  use diesel_async::{AsyncPgConnection, RunQueryDsl};
+
+  use crate::{demo::models::Post, schema::posts::dsl::posts};
+
+  pub async fn get_one(conn: &mut AsyncPgConnection, post_id: i32) -> Option<Post> {
+    // following line: can't allow query result empty, so we will end up with runtime errors
+    // let post: Result<Option<Post>, _> =
+    // posts.find(post_id).select(Post::as_select()).first(conn).await; add .optional:
+    let post: Result<Option<Post>, _> =
+      posts.find(post_id).select(Post::as_select()).first(conn).await.optional();
+    // // This allows for returning an Option<Post>, otherwise it will throw an error
+
+    match &post {
+      Ok(Some(post)) => println!("Post with id: {} has a title: {}", post.id, post.title),
+      Ok(None) => println!("Unable to find post {}", post_id),
+      Err(_) => eprintln!("An error occured while fetching post {}", post_id),
+    }
+
+    post.ok().flatten()
   }
 }
