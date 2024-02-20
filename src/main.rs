@@ -8,6 +8,8 @@
 mod error;
 #[cfg(test)] mod tests;
 mod utils;
+mod schema;
+mod demo;
 
 use axum::{
   http::StatusCode,
@@ -39,3 +41,4 @@ async fn main(
 
   Ok(router.into())
 }
+
