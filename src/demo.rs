@@ -91,3 +91,25 @@ pub mod create_posts {
       .expect("Error saving new post")
   }
 }
+
+pub mod publish_post {
+  use diesel::prelude::*;
+  use diesel_async::{AsyncConnection, AsyncPgConnection, RunQueryDsl};
+
+  use crate::{
+    demo::models::Post,
+    schema::posts::dsl::{posts, published},
+  };
+
+  pub async fn publish_post(conn: &mut AsyncPgConnection, id: i32) {
+    // update post
+    let post = diesel::update(posts.find(id))
+      .set(published.eq(true))
+      .returning(Post::as_returning())
+      .get_result(conn)
+      .await
+      .unwrap();
+
+    println!("Published post {}", post.title);
+  }
+}

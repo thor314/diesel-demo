@@ -37,6 +37,8 @@ async fn main(
 
   demo::create_posts::create_post(&mut conn, "title", "body").await;
   demo::create_posts::create_post(&mut conn, "title2", "body2").await;
+  demo::publish_post::publish_post(&mut conn, 1).await;
+  demo::publish_post::publish_post(&mut conn, 2).await;
   demo::show_posts::show_posts(&mut conn).await;
 
   let router = Router::new()
