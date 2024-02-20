@@ -159,7 +159,10 @@ pub mod delete_post {
 
   use crate::schema::{
     self,
-    posts::{dsl::{id, posts}, title},
+    posts::{
+      dsl::{id, posts},
+      title,
+    },
   };
 
   pub async fn delete_post(conn: &mut AsyncPgConnection, pattern: &str) {
