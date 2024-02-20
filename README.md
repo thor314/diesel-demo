@@ -40,3 +40,57 @@ cargo shuttle deploy
 - benches:     
 - async:        async 
 - server:       server 
+
+## let's diesel
+
+[Getting Started with Diesel](https://diesel.rs/guides/getting-started.html)
+## install
+```sh
+sudo apt-get install -y libpq-dev postgresql
+cargo install diesel_cli --no-default-features --features postgres
+```
+
+## setup
+set the database URL and setup
+```sh
+DATABASE_URL="postgres://username:password@localhost/diesel_demo" # in Secrets.toml
+diesel setup
+```
+
+### option A: use sql for migrations
+`diesel migration generate create_posts`
+Add some files to the migrations:
+```sql
+# up:
+CREATE TABLE posts (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR NOT NULL,
+  body TEXT NOT NULL,
+  published BOOLEAN NOT NULL DEFAULT FALSE
+)
+# down:
+DROP TABLE posts
+```
+
+This will generate a `schema.rs` file.
+
+### option b: use the diesel table macro for migrations
+create a `schema.rs` file with content:
+```rust
+diesel::table! {
+    posts (id) {
+        id -> Int4,
+        title -> Varchar,
+        body -> Text,
+        published -> Bool,
+    }
+}
+```
+
+run `diesel migration generate --diff-schema create_posts`
+
+test the migrations:
+```sh
+diesel migration run # run migrations
+diesel migration redo # roll back with down
+```
