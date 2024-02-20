@@ -5,11 +5,11 @@
 #![allow(non_snake_case)]
 #![allow(clippy::clone_on_copy)]
 
+mod demo;
 mod error;
+mod schema;
 #[cfg(test)] mod tests;
 mod utils;
-mod schema;
-mod demo;
 
 use axum::{
   http::StatusCode,
@@ -33,6 +33,11 @@ async fn main(
   utils::setup(&secret_store).unwrap();
 
   info!("hello thor");
+  let mut conn = demo::establish_connection(&secret_store).await;
+
+  demo::create_posts::create_post(&mut conn, "title", "body").await;
+  demo::create_posts::create_post(&mut conn, "title2", "body2").await;
+  demo::show_posts::show_posts(&mut conn).await;
 
   let router = Router::new()
     .route("/", get(hello_world))
@@ -41,4 +46,3 @@ async fn main(
 
   Ok(router.into())
 }
-
